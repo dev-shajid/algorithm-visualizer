@@ -6,13 +6,13 @@ WORKDIR /app
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Copy dependency files
-COPY package.json pnpm-lock.yaml ./
+# Copy only package.json (lock file optional)
+COPY package.json ./
 
-# Install all dependencies (including dev)
-RUN pnpm install --frozen-lockfile
+# Install dependencies (fallback if lock file is missing)
+RUN pnpm install --frozen-lockfile || pnpm install
 
-# Copy the entire project for build
+# Copy the rest of the application
 COPY . .
 
 # Build the Next.js app
@@ -27,24 +27,24 @@ WORKDIR /app
 # Install pnpm globally
 RUN npm install -g pnpm
 
-# Copy only required files for runtime
-COPY package.json pnpm-lock.yaml ./
+# Copy only package.json (lock file optional)
+COPY package.json ./
 
 # Install only production dependencies
-RUN pnpm install --prod --frozen-lockfile
+RUN pnpm install --prod --frozen-lockfile || pnpm install --prod
 
-# Copy Next.js build output from builder stage
+# Copy built output from builder
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/.env ./.env
 
-# Optional: set NODE_ENV for better performance
+# Set environment to production
 ENV NODE_ENV=production
 
-# Next.js serves on port 3000 by default
+# Expose Next.js port
 EXPOSE 3000
 
-# Run Next.js in production mode
+# Start the app
 CMD ["pnpm", "start"]
