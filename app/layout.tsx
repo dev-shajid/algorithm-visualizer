@@ -5,7 +5,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Algorithm Visualizer',
-  description: 'Interactive tool to visualize algorithms step by step. ',
+  description: 'Interactive tool to visualize algorithms step by step.',
   generator: 'Algorithm Visualizer',
 }
 
